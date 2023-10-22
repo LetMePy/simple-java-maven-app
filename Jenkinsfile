@@ -1,21 +1,35 @@
 pipeline {
-    agent {
-        docker {
-            image 'maven:3.9.5-eclipse-temurin-17-alpine' 
-            args '-v /root/.m2:/root/.m2' 
-        }
+    environment {
+        registry = "skandersoltane/simple-app"
+        registryCredential = 'dckr_pat_iTj37v7dE4n0_IG1vzZySi33EY8'
+        dockerImage = 'simple-app'
     }
+    agent any
     stages {
-        stage('Build') { 
+        stage('Cloning our Git') {
             steps {
-                sh 'mvn -B -DskipTests clean package' 
+                git 'https://github.com/LetMePy/simple-java-maven-app.git'
             }
         }
-        stage('Docker Build') {
+        stage('Building our image') {
             steps {
                 script {
-                    def dockerImage = docker.build('simple-image:1.0.0', '.')
+                    dockerImage = docker.build registry + ":$BUILD_NUMBER"
                 }
+            }
+        }
+        stage('Deploy our image') {
+            steps {
+                script {
+                    docker.withRegistry('', registryCredential) {
+                        dockerImage.push()
+                    }
+                }
+            }
+        }
+        stage('Cleaning up') {
+            steps {
+                sh "docker rmi $registry:$BUILD_NUMBER"
             }
         }
     }
