@@ -11,7 +11,13 @@ pipeline {
                 sh 'mvn -B -DskipTests clean package' 
             }
         }
+        stage('Docker Build') {
+            steps {
+                script {
+                    def dockerImage = docker.build('simple-image:1.0.0', '.')
+                }
+            }
+        }
     }
 }
-
 
