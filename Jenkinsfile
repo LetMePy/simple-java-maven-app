@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Cloning our Git') {
             steps {
-                git 'https://github.com/LetMePy/simple-java-maven-app.git'
+                git 'https://github.com/LetMePy/obitemservice.git'
             }
         }
         stage('Building our image') {
